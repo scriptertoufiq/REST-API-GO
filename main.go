@@ -27,7 +27,7 @@ type Product struct {
 func getProduct(w http.ResponseWriter, r *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	
+
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -39,7 +39,43 @@ func getProduct(w http.ResponseWriter, r *http.Request){
 	
 }
 
+func addProduct(w http.ResponseWriter, r *http.Request){
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var newProduct Product
+
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&newProduct)
+
+	if err != nil {
+		fmt.Println("Error decoding request body:", err)
+		http.Error(w, "Bad request", http.StatusBadRequest)
+		return
+	}
+
+	newProduct.ID = len(productsList) + 1
+	productsList = append(productsList, newProduct)
+
+	w.WriteHeader(201)
+
+	w.WriteHeader(http.StatusCreated)
+	encoder := json.NewEncoder(w)
+	encoder.Encode(newProduct)
+	
+}
+
 var productsList [] Product
+
+
+
 
 
 func main() {	
@@ -47,6 +83,7 @@ func main() {
 	mux.HandleFunc("/hello", helloWorld)
 	mux.HandleFunc("/about",aboutPage)
 	mux.HandleFunc("/product",getProduct)
+	mux.HandleFunc("/create-product",addProduct)
 
 	fmt.Println("Server is running on port 8080")
 	err := http.ListenAndServe(":8080", mux)
