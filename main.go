@@ -7,7 +7,7 @@ import (
 )
 
  func helloWorld(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintln(w, "Hello, World!");
+	fmt.Fprintln(w, "Hello, World!"); 
 }
 func aboutPage(w http.ResponseWriter, r *http.Request){
 	fmt.Fprintln(w, "This is the about page");
@@ -42,10 +42,10 @@ func getProduct(w http.ResponseWriter, r *http.Request){
 	handlePreflight(w, r)
 
 	if r.Method != "GET" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
+	
 	encoder := json.NewEncoder(w)
 	encoder.Encode(productsList)
 
@@ -59,7 +59,7 @@ func addProduct(w http.ResponseWriter, r *http.Request){
 
 	handleCors(w)
 
-	if r.Method != "POST" {
+	if r.Method == "POST" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
@@ -98,10 +98,11 @@ var productsList [] Product
 
 func main() {	
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", helloWorld)
-	mux.HandleFunc("/about",aboutPage)
-	mux.HandleFunc("/product",getProduct)
-	mux.HandleFunc("/create-product",addProduct)
+	mux.Handle("GET /hello", http.HandlerFunc(helloWorld))
+	mux.Handle("GET /about", http.HandlerFunc(aboutPage))
+	mux.Handle("GET /product", http.HandlerFunc(getProduct))
+	mux.Handle("OPTIONS /product", http.HandlerFunc(handlePreflight))
+	mux.Handle("POST /create-product", http.HandlerFunc(addProduct))
 
 	fmt.Println("Server is running on port 8080")
 	err := http.ListenAndServe(":8080", mux)
