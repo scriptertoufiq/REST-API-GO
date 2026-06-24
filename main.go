@@ -3,158 +3,61 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"encoding/json"
 )
 
- func helloWorld(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintln(w, "Hello, World!"); 
-}
-func aboutPage(w http.ResponseWriter, r *http.Request){
-	fmt.Fprintln(w, "This is the about page");
-}
-
-type Product struct {
-	ID    int `json:"id"`
-	Title  string `json:"title"`
-	Description string `json:"description"`
-	Price float64 `json:"price"`
-	ImgURL string `json:"img_url"`
-}
-
-func handleCors(w http.ResponseWriter) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
-	w.Header().Set("Content-Type", "application/json")
-	
-}
-
-
-func handlePreflight(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "OPTIONS" {
-		w.WriteHeader(200)
-		return
-	}
-}
-
-func getProduct(w http.ResponseWriter, r *http.Request){
-	handleCors(w)
-	handlePreflight(w, r)
-
-	if r.Method != "GET" {
-		return
-	}
-
-	
-	encoder := json.NewEncoder(w)
-	encoder.Encode(productsList)
-
-	sendData(w, productsList, 201)
-
-	
-}
-
-func addProduct(w http.ResponseWriter, r *http.Request){
-	
-
-	handleCors(w)
-
-	if r.Method == "POST" {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	var newProduct Product
-
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newProduct)
-
-	if err != nil {
-		fmt.Println("Error decoding request body:", err)
-		http.Error(w, "Bad request", http.StatusBadRequest)
-		return
-	}
-
-	newProduct.ID = len(productsList) + 1
-	productsList = append(productsList, newProduct)
-
-	sendData(w, newProduct, 201)
-	
-}
-
-func sendData(w http.ResponseWriter, data interface{}, statusCode int) {
-	w.WriteHeader(statusCode)
-
-	w.WriteHeader(http.StatusCreated)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(data)
-}
-
-var productsList [] Product
-
-
-
-
-
-func main() {	
+func main() {
 	mux := http.NewServeMux()
-	mux.Handle("GET /hello", http.HandlerFunc(helloWorld))
-	mux.Handle("GET /about", http.HandlerFunc(aboutPage))
-	mux.Handle("GET /product", http.HandlerFunc(getProduct))
-	mux.Handle("OPTIONS /product", http.HandlerFunc(handlePreflight))
+	mux.Handle("GET /products", http.HandlerFunc(getProduct))
 	mux.Handle("POST /create-product", http.HandlerFunc(addProduct))
 
 	fmt.Println("Server is running on port 8080")
-	err := http.ListenAndServe(":8080", mux)
-
+	globalRouter := globalRouter(mux)
+	err := http.ListenAndServe(":8080", globalRouter)
 
 	if err != nil {
 		fmt.Println("Error starting server:", err)
-	}else {		
+	} else {
 		fmt.Println("Server started successfully")
 	}
-
-
-
 
 }
 
 func init() {
 	prd1 := Product{
-		ID: 1,
-		Title: "Product 1",
+		ID:          1,
+		Title:       "Product 1",
 		Description: "This is the first product",
-		Price: 19.99,
-		ImgURL: "https://example.com/product1.jpg",
+		Price:       19.99,
+		ImgURL:      "https://example.com/product1.jpg",
 	}
 	prd2 := Product{
-		ID: 2,
-		Title: "Product 2",
+		ID:          2,
+		Title:       "Product 2",
 		Description: "This is the second product",
-		Price: 29.99,
-		ImgURL: "https://example.com/product2.jpg",
+		Price:       29.99,
+		ImgURL:      "https://example.com/product2.jpg",
 	}
 	prd3 := Product{
-		ID: 3,
-		Title: "Product 3",
+		ID:          3,
+		Title:       "Product 3",
 		Description: "This is the third product",
-		Price: 39.99,
-		ImgURL: "https://example.com/product3.jpg",
+		Price:       39.99,
+		ImgURL:      "https://example.com/product3.jpg",
 	}
 	prd4 := Product{
-		ID: 4,
-		Title: "Product 4",
+		ID:          4,
+		Title:       "Product 4",
 		Description: "This is the fourth product",
-		Price: 49.99,
-		ImgURL: "https://example.com/product4.jpg",
+		Price:       49.99,
+		ImgURL:      "https://example.com/product4.jpg",
 	}
 	prd5 := Product{
-		ID: 5,
-		Title: "Product 5",
+		ID:          5,
+		Title:       "Product 5",
 		Description: "This is the fifth product",
-		Price: 59.99,
-		ImgURL: "https://example.com/product5.jpg",
+		Price:       59.99,
+		ImgURL:      "https://example.com/product5.jpg",
 	}
 
-	productsList = []Product{prd1, prd2, prd3, prd4, prd5}		
+	productsList = []Product{prd1, prd2, prd3, prd4, prd5}
 }
