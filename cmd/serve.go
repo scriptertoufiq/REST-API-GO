@@ -1,12 +1,15 @@
 package cmd
 
 import (
+	"ecommerce/config"
 	"ecommerce/middleware"
 	"fmt"
 	"net/http"
 )
 
 func Serve() {
+
+	config := config.GetConfig()
 
 	manager := middleware.NewManager()
 
@@ -20,8 +23,8 @@ func Serve() {
 		middleware.Hudai,
 		middleware.CorsWithPreflight,
 	)
-	fmt.Println("Server is running on port 8080")
-	err := http.ListenAndServe(":8080", wrappedMux)
+	fmt.Println("Starting service:", config.ServiceName, "Version:", config.Version, "running on port:", config.HttpPort)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", config.HttpPort), wrappedMux)
 
 	if err != nil {
 		fmt.Println("Error starting server:", err)
