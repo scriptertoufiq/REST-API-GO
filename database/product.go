@@ -8,18 +8,20 @@ type Product struct {
 	ImgURL      string  `json:"img_url"`
 }
 
-var ProductsList []Product
+var productsList []Product
 
-func Store(product Product) {
-	ProductsList = append(ProductsList, product)
+func Store(p Product) Product {
+	p.ID = len(productsList) + 1
+	productsList = append(productsList, p)
+	return p
 }
 
 func List() []Product {
-	return ProductsList
+	return productsList
 }
 
 func Get(productID int) *Product {
-	for _, product := range ProductsList {
+	for _, product := range productsList {
 		if product.ID == productID {
 			return &product
 		}
@@ -29,24 +31,24 @@ func Get(productID int) *Product {
 }
 
 func Update(product Product) *Product {
-	for i, p := range ProductsList {
+	for i, p := range productsList {
 		if p.ID == product.ID {
-			ProductsList[i] = product
-			return &ProductsList[i]
+			productsList[i] = product
+			return &productsList[i]
 		}
 	}
 	return nil
 }
 
 func Delete(productID int) {
-	var temptList []Product
+	var temptList []Product = make([]Product, 0)
 
-	for i, product := range ProductsList {
+	for _, product := range productsList {
 		if product.ID != productID {
-			temptList[i] = product
+			temptList = append(temptList, product)
 		}
 	}
-	ProductsList = temptList
+	productsList = temptList
 }
 
 func init() {
@@ -86,5 +88,5 @@ func init() {
 		ImgURL:      "https://example.com/product5.jpg",
 	}
 
-	ProductsList = []Product{prd1, prd2, prd3, prd4, prd5}
+	productsList = []Product{prd1, prd2, prd3, prd4, prd5}
 }

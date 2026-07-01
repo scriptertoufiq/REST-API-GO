@@ -20,9 +20,10 @@ func AddProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+	newProduct = database.Store(newProduct)
 
-	newProduct.ID = len(database.ProductsList) + 1
-	database.ProductsList = append(database.ProductsList, newProduct)
+	// newProduct.ID = len(database.ProductsList) + 1
+	// database.ProductsList = append(database.ProductsList, newProduct)
 
 	util.SendData(w, newProduct, 201)
 

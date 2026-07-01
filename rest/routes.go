@@ -13,4 +13,6 @@ func initRoutes(mux *http.ServeMux, mngr *middleware.Manager) {
 	))
 	mux.Handle("POST /create-product", mngr.With(http.HandlerFunc(handlers.AddProduct)))
 	mux.Handle("GET /products/{id}", mngr.With(http.HandlerFunc(handlers.GetProductByID)))
+	mux.Handle("PUT /products/{id}", mngr.With(http.HandlerFunc(handlers.UpdateProduct)))
+	mux.Handle("DELETE /products/{id}", mngr.With(http.HandlerFunc(handlers.DeleteProduct)))
 }
