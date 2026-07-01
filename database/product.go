@@ -10,6 +10,45 @@ type Product struct {
 
 var ProductsList []Product
 
+func Store(product Product) {
+	ProductsList = append(ProductsList, product)
+}
+
+func List() []Product {
+	return ProductsList
+}
+
+func Get(productID int) *Product {
+	for _, product := range ProductsList {
+		if product.ID == productID {
+			return &product
+		}
+	}
+	return nil
+
+}
+
+func Update(product Product) *Product {
+	for i, p := range ProductsList {
+		if p.ID == product.ID {
+			ProductsList[i] = product
+			return &ProductsList[i]
+		}
+	}
+	return nil
+}
+
+func Delete(productID int) {
+	var temptList []Product
+
+	for i, product := range ProductsList {
+		if product.ID != productID {
+			temptList[i] = product
+		}
+	}
+	ProductsList = temptList
+}
+
 func init() {
 	prd1 := Product{
 		ID:          1,
