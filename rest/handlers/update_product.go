@@ -4,14 +4,13 @@ import (
 	"ecommerce/database"
 	"ecommerce/util"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
 func UpdateProduct(w http.ResponseWriter, r *http.Request) {
-
 	productID := r.PathValue("id")
+
 	id, err := strconv.Atoi(productID)
 	if err != nil {
 		http.Error(w, "Invalid product ID", http.StatusBadRequest)
@@ -20,15 +19,14 @@ func UpdateProduct(w http.ResponseWriter, r *http.Request) {
 
 	var updatedProduct database.Product
 
-	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&updatedProduct)
-
-	if err != nil {
-		fmt.Println("Error decoding request body:", err)
+	if err := json.NewDecoder(r.Body).Decode(&updatedProduct); err != nil {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
+
+	// Ensure the ID comes from the URL, not the request body.
 	updatedProduct.ID = id
+
 	product := database.Update(updatedProduct)
 	if product == nil {
 		http.Error(w, "Product not found", http.StatusNotFound)
