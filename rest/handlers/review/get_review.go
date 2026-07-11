@@ -1,4 +1,4 @@
-package handlers
+package review
 
 import (
 	"ecommerce/database"
@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func GetProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetReviews(w http.ResponseWriter, r *http.Request) {
 
 	util.SendData(w, database.List(), 200)
 

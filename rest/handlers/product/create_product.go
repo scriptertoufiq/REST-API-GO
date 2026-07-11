@@ -1,4 +1,4 @@
-package handlers
+package product
 
 import (
 	"ecommerce/database"
@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func AddProduct(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 
 	var newProduct database.Product
 
