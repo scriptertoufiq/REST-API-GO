@@ -11,24 +11,27 @@ import (
 )
 
 type Server struct {
+	config         *config.Config
 	productHandler *product.Handler
 	userHandler    *user.Handler
 	reviewHandler  *review.Handler
 }
 
 func NewServer(
+	config *config.Config,
 	productHandler *product.Handler,
 	userHandler *user.Handler,
 	reviewHandler *review.Handler,
 ) *Server {
 	return &Server{
+		config:         config,
 		productHandler: productHandler,
 		userHandler:    userHandler,
 		reviewHandler:  reviewHandler,
 	}
 }
 
-func (server *Server) Start(cnf config.Config) {
+func (server *Server) Start() {
 
 	manager := middleware.NewManager()
 	manager.Use(
@@ -43,8 +46,8 @@ func (server *Server) Start(cnf config.Config) {
 	server.userHandler.RegisterRoutes(mux, manager)
 	server.reviewHandler.RegisterRoutes(mux, manager)
 
-	fmt.Println("Starting service:", cnf.ServiceName, "Version:", cnf.Version, "running on port:", cnf.HttpPort)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", cnf.HttpPort), wrappedMux)
+	fmt.Println("Starting service:", server.config.ServiceName, "Version:", server.config.Version, "running on port:", server.config.HttpPort)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", server.config.HttpPort), wrappedMux)
 
 	if err != nil {
 		fmt.Println("Error starting server:", err)
