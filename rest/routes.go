@@ -9,13 +9,29 @@ import (
 func initRoutes(mux *http.ServeMux, mngr *middleware.Manager) {
 	mux.Handle("GET /products", mngr.With(
 		http.HandlerFunc(handlers.GetProduct),
-		middleware.Arekta,
+		middleware.AuthenticationJWT,
 	))
-	mux.Handle("POST /create-product", mngr.With(http.HandlerFunc(handlers.AddProduct)))
-	mux.Handle("GET /products/{id}", mngr.With(http.HandlerFunc(handlers.GetProductByID)))
-	mux.Handle("PUT /products/{id}", mngr.With(http.HandlerFunc(handlers.UpdateProduct)))
-	mux.Handle("DELETE /products/{id}", mngr.With(http.HandlerFunc(handlers.DeleteProduct)))
+	mux.Handle("POST /create-product", mngr.With(
+		http.HandlerFunc(handlers.AddProduct),
+		middleware.AuthenticationJWT,
+	))
+	mux.Handle("GET /products/{id}", mngr.With(
+		http.HandlerFunc(handlers.GetProductByID),
+		middleware.AuthenticationJWT,
+	))
+	mux.Handle("PUT /products/{id}", mngr.With(
+		http.HandlerFunc(handlers.UpdateProduct),
+		middleware.AuthenticationJWT,
+	))
+	mux.Handle("DELETE /products/{id}", mngr.With(
+		http.HandlerFunc(handlers.DeleteProduct),
+		middleware.AuthenticationJWT,
+	))
 
-	mux.Handle("POST /users", mngr.With(http.HandlerFunc(handlers.CreateUser)))
-	mux.Handle("POST /users/login", mngr.With(http.HandlerFunc(handlers.Login)))
+	mux.Handle("POST /users", mngr.With(
+		http.HandlerFunc(handlers.CreateUser),
+	))
+	mux.Handle("POST /users/login", mngr.With(
+		http.HandlerFunc(handlers.Login),
+	))
 }
