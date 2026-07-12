@@ -2,7 +2,6 @@ package user
 
 import (
 	"ecommerce/config"
-	"ecommerce/database"
 	"ecommerce/util"
 	"encoding/json"
 	"fmt"
@@ -27,7 +26,13 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := database.Find(loginUser.Email, loginUser.Password)
+	user, err := h.userRepo.Find(loginUser.Email, loginUser.Password)
+
+	if err != nil {
+		fmt.Println("Error finding user:", err)
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 
 	if user == nil {
 		http.Error(w, "Invalid credentials", http.StatusUnauthorized)

@@ -1,7 +1,21 @@
 package user
 
-type Handler struct{}
+import (
+	"ecommerce/repo"
+	middleware "ecommerce/rest/middlewares"
+)
 
-func NewHandler() *Handler {
-	return &Handler{}
+type Handler struct {
+	middlewares *middleware.Middlewares
+	userRepo    repo.UserRepo
+}
+
+func NewUserHandler(
+	middlewares *middleware.Middlewares,
+	userRepo repo.UserRepo,
+) *Handler {
+	return &Handler{
+		middlewares: middlewares,
+		userRepo:    userRepo,
+	}
 }

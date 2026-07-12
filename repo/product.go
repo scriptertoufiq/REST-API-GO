@@ -13,51 +13,64 @@ type Product struct {
 type ProductRepo interface {
 	Create(p Product) (*Product, error)
 	Get(productID int) (*Product, error)
-	List() []Product
-	Delete(productID int)
+	List() ([]*Product, error)
+	GetByID(productID int) *Product
+	Delete(productID int) error
 	Update(product Product) (*Product, error)
 }
 
 type productRepo struct {
-	productsList []Product
+	productsList []*Product
 }
 
 func NewProductRepo() ProductRepo {
-	repo := &productRepo{
-		productsList: []Product{},
-	}
+	repo := &productRepo{}
 	generateInitialProducts(repo)
 	return repo
 }
 
+func (r *productRepo) GetByID(productID int) *Product {
+	for _, product := range r.productsList {
+		if product.ID == productID {
+			return product
+		}
+	}
+	return nil
+}
+
 func (r *productRepo) Create(p Product) (*Product, error) {
 	p.ID = len(r.productsList) + 1
-	r.productsList = append(r.productsList, p)
+	r.productsList = append(r.productsList, &p)
 	return &p, nil
 }
 
 func (r *productRepo) Get(productID int) (*Product, error) {
-
-}
-
-func (r *productRepo) List() []Product {
-	return r.productsList
-}
-
-func (r *productRepo) Delete(productID int) {
-	var temptList []Product = make([]Product, 0)
-
 	for _, product := range r.productsList {
-		if product.ID != productID {
-			temptList = append(temptList, product)
+		if product.ID == productID {
+			return product, nil
 		}
 	}
-	r.productsList = temptList
+	return nil, fmt.Errorf("product not found")
 }
+
+func (r *productRepo) List() ([]*Product, error) {
+	return r.productsList, nil
+}
+
+func (r *productRepo) Delete(productID int) error {
+	for i, product := range r.productsList {
+		if product.ID == productID {
+			r.productsList = append(r.productsList[:i], r.productsList[i+1:]...)
+			return nil
+		}
+	}
+	return fmt.Errorf("product not found")
+}
+
 func (r *productRepo) Update(product Product) (*Product, error) {
 	for i, p := range r.productsList {
 		if p.ID == product.ID {
-			r.productsList[i] = product
+			r.productsList[i] = &product
 			return &product, nil
 		}
 	}
@@ -65,35 +78,39 @@ func (r *productRepo) Update(product Product) (*Product, error) {
 }
 
 func generateInitialProducts(r *productRepo) {
-	prd1 := Product{
+	prd1 := &Product{
 		ID:          1,
 		Title:       "Product 1",
 		Description: "This is the first product",
 		Price:       19.99,
 		ImgURL:      "https://example.com/product1.jpg",
 	}
-	prd2 := Product{
+
+	prd2 := &Product{
 		ID:          2,
 		Title:       "Product 2",
 		Description: "This is the second product",
 		Price:       29.99,
 		ImgURL:      "https://example.com/product2.jpg",
 	}
-	prd3 := Product{
+
+	prd3 := &Product{
 		ID:          3,
 		Title:       "Product 3",
 		Description: "This is the third product",
 		Price:       39.99,
 		ImgURL:      "https://example.com/product3.jpg",
 	}
-	prd4 := Product{
+
+	prd4 := &Product{
 		ID:          4,
 		Title:       "Product 4",
 		Description: "This is the fourth product",
 		Price:       49.99,
 		ImgURL:      "https://example.com/product4.jpg",
 	}
-	prd5 := Product{
+
+	prd5 := &Product{
 		ID:          5,
 		Title:       "Product 5",
 		Description: "This is the fifth product",
@@ -101,5 +118,11 @@ func generateInitialProducts(r *productRepo) {
 		ImgURL:      "https://example.com/product5.jpg",
 	}
 
-	r.productsList = []Product{prd1, prd2, prd3, prd4, prd5}
+	r.productsList = []*Product{
+		prd1,
+		prd2,
+		prd3,
+		prd4,
+		prd5,
+	}
 }

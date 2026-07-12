@@ -1,5 +1,7 @@
 package repo
 
+import "errors"
+
 type User struct {
 	ID          int    `json:"id"`
 	FirstName   string `json:"first_name"`
@@ -10,37 +12,39 @@ type User struct {
 }
 
 type UserRepo interface {
-	Store(u User) (*User, error)
+	Create(user User) (*User, error)
 	Find(email, pass string) (*User, error)
 }
 
 type userRepo struct {
-	usersList []User
+	users []User
 }
 
 func NewUserRepo() UserRepo {
-	repo := &userRepo{
-		usersList: []User{},
+	return &userRepo{
+		users: make([]User, 0),
 	}
-	return repo
 }
 
-func (user User) Store() User {
-	if user.ID != 0 {
-		return user
-	}
-
-	user.ID = len(users) + 1
-
-	users = append(users, user)
-	return user
-}
-
-func Find(email, pass string) *User {
-	for _, user := range users {
-		if user.Email == email && user.Password == pass {
-			return &user
+func (r *userRepo) Create(user User) (*User, error) {
+	for _, u := range r.users {
+		if u.Email == user.Email {
+			return nil, errors.New("email already exists")
 		}
 	}
-	return nil
+
+	user.ID = len(r.users) + 1
+	r.users = append(r.users, user)
+
+	return &user, nil
+}
+
+func (r *userRepo) Find(email, pass string) (*User, error) {
+	for i := range r.users {
+		if r.users[i].Email == email && r.users[i].Password == pass {
+			return &r.users[i], nil
+		}
+	}
+
+	return nil, errors.New("user not found")
 }
