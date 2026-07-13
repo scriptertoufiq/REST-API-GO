@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
+
 	"ecommerce/config"
-	"ecommerce/infra/db"
+	dbpkg "ecommerce/infra/db"
 	"ecommerce/repo"
 	"ecommerce/rest"
 	"ecommerce/rest/handlers/product"
@@ -13,15 +15,15 @@ import (
 func Serve() {
 	cfg := config.GetConfig()
 
-	db, err := db.NewDBConnection()
+	dbConn, err := dbpkg.NewDBConnection(cfg)
 	if err != nil {
-		println("Error connecting to the database:", err)
+		fmt.Println("Error connecting to the database:", err)
 		return
 	}
 
 	// Repositories
-	productRepo := repo.NewProductRepo(db)
-	userRepo := repo.NewUserRepo(db)
+	productRepo := repo.NewProductRepo(dbConn)
+	userRepo := repo.NewUserRepo(dbConn)
 
 	// Middlewares
 	middlewares := middleware.NewMiddlewares(cfg)
