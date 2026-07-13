@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"ecommerce/config"
+	"ecommerce/infra/db"
 	"ecommerce/repo"
 	"ecommerce/rest"
 	"ecommerce/rest/handlers/product"
@@ -11,6 +12,12 @@ import (
 
 func Serve() {
 	cfg := config.GetConfig()
+
+	db, err := db.NewDBConnection()
+	if err != nil {
+		println("Error connecting to the database:", err)
+		return
+	}
 
 	// Repositories
 	productRepo := repo.NewProductRepo()
