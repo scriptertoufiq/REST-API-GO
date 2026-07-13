@@ -1,14 +1,18 @@
 package repo
 
-import "errors"
+import (
+	"log"
+
+	"github.com/jmoiron/sqlx"
+)
 
 type User struct {
-	ID          int    `json:"id"`
-	FirstName   string `json:"first_name"`
-	LastName    string `json:"last_name"`
-	Email       string `json:"email"`
-	Password    string `json:"password"`
-	IsShopOwner bool   `json:"is_shop_owner"`
+	ID          int    `json:"id" db:"id"`
+	FirstName   string `json:"first_name" db:"first_name"`
+	LastName    string `json:"last_name" db:"last_name"`
+	Email       string `json:"email" db:"email"`
+	Password    string `json:"password" db:"password"`
+	IsShopOwner bool   `json:"is_shop_owner" db:"is_shop_owner"`
 }
 
 type UserRepo interface {
@@ -17,34 +21,54 @@ type UserRepo interface {
 }
 
 type userRepo struct {
-	users []User
+	dbCon *sqlx.DB
 }
 
-func NewUserRepo() UserRepo {
+func NewUserRepo(dbCon *sqlx.DB) UserRepo {
 	return &userRepo{
-		users: make([]User, 0),
+		dbCon: dbCon,
 	}
 }
 
 func (r *userRepo) Create(user User) (*User, error) {
-	for _, u := range r.users {
-		if u.Email == user.Email {
-			return nil, errors.New("email already exists")
-		}
+	query := `
+		INSERT INTO users (
+			first_name,
+			last_name,
+			email,
+			password,
+			is_shop_owner
+		)
+		VALUES (
+			:first_name,
+			:last_name,
+			:email,
+			:password,
+			:is_shop_owner
+		)
+		RETURNING id;
+	`
+	var userId int
+	row, err := r.dbCon.NamedQuery(query, user)
+	if err != nil {
+		log.Println("Error inserting user into the database:", err)
+		return nil, err
 	}
 
-	user.ID = len(r.users) + 1
-	r.users = append(r.users, user)
+	if row.Next() {
+		err = row.Scan(&userId)
+	}
+	user.ID = userId
 
 	return &user, nil
 }
 
 func (r *userRepo) Find(email, pass string) (*User, error) {
-	for i := range r.users {
-		if r.users[i].Email == email && r.users[i].Password == pass {
-			return &r.users[i], nil
-		}
+	query := `SELECT id, first_name, last_name, email, password, is_shop_owner FROM users WHERE email = $1 AND password = $2`
+	var user User
+	err := r.dbCon.Get(&user, query, email, pass)
+	if err != nil {
+		return nil, err
 	}
-
-	return nil, errors.New("user not found")
+	return &user, nil
 }

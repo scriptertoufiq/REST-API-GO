@@ -21,7 +21,7 @@ func Serve() {
 
 	// Repositories
 	productRepo := repo.NewProductRepo()
-	userRepo := repo.NewUserRepo()
+	userRepo := repo.NewUserRepo(db)
 
 	// Middlewares
 	middlewares := middleware.NewMiddlewares(cfg)
