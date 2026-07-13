@@ -20,7 +20,7 @@ func Serve() {
 	}
 
 	// Repositories
-	productRepo := repo.NewProductRepo()
+	productRepo := repo.NewProductRepo(db)
 	userRepo := repo.NewUserRepo(db)
 
 	// Middlewares
