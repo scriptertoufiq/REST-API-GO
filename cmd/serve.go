@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"ecommerce/config"
+	"ecommerce/infra/db"
 	dbpkg "ecommerce/infra/db"
 	"ecommerce/repo"
 	"ecommerce/rest"
@@ -18,6 +19,12 @@ func Serve() {
 	dbConn, err := dbpkg.NewDBConnection(cfg)
 	if err != nil {
 		fmt.Println("Error connecting to the database:", err)
+		return
+	}
+
+	err = db.MigrateDB(dbConn, "./migrations")
+	if err != nil {
+		fmt.Println("Error migrating the database:", err)
 		return
 	}
 
