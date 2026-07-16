@@ -34,7 +34,7 @@ func (r *productRepo) List() ([]*domain.Product, error) {
 func (r *productRepo) Create(p domain.Product) (*domain.Product, error) {
 	query := `
 		INSERT INTO products (
-			name,
+			title,
 			description,
 			price,
 			img_url
