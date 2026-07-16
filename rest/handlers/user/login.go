@@ -26,7 +26,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.userRepo.Find(loginUser.Email, loginUser.Password)
+	user, err := h.svc.Find(loginUser.Email, loginUser.Password)
 
 	if err != nil {
 		fmt.Println("Error finding user:", err)

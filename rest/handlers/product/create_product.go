@@ -1,7 +1,7 @@
 package product
 
 import (
-	repo "ecommerce/repo"
+	"ecommerce/domain"
 	"ecommerce/util"
 	"encoding/json"
 	"fmt"
@@ -27,7 +27,7 @@ func (h *Handler) AddProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Bad request", http.StatusBadRequest)
 		return
 	}
-	createdProduct, err := h.productRepo.Create(repo.Product{
+	createdProduct, err := h.service.Create(domain.Product{
 		Title:       req.Title,
 		Description: req.Description,
 		Price:       req.Price,

@@ -3,21 +3,14 @@ package repo
 import (
 	"log"
 
+	"ecommerce/domain"
+	"ecommerce/user"
+
 	"github.com/jmoiron/sqlx"
 )
 
-type User struct {
-	ID          int    `json:"id" db:"id"`
-	FirstName   string `json:"first_name" db:"first_name"`
-	LastName    string `json:"last_name" db:"last_name"`
-	Email       string `json:"email" db:"email"`
-	Password    string `json:"password" db:"password"`
-	IsShopOwner bool   `json:"is_shop_owner" db:"is_shop_owner"`
-}
-
 type UserRepo interface {
-	Create(user User) (*User, error)
-	Find(email, pass string) (*User, error)
+	user.UserRepo
 }
 
 type userRepo struct {
@@ -30,7 +23,7 @@ func NewUserRepo(dbCon *sqlx.DB) UserRepo {
 	}
 }
 
-func (r *userRepo) Create(user User) (*User, error) {
+func (r *userRepo) Create(user domain.User) (*domain.User, error) {
 	query := `
 		INSERT INTO users (
 			first_name,
@@ -63,9 +56,9 @@ func (r *userRepo) Create(user User) (*User, error) {
 	return &user, nil
 }
 
-func (r *userRepo) Find(email, pass string) (*User, error) {
+func (r *userRepo) Find(email, pass string) (*domain.User, error) {
 	query := `SELECT id, first_name, last_name, email, password, is_shop_owner FROM users WHERE email = $1 AND password = $2`
-	var user User
+	var user domain.User
 	err := r.dbCon.Get(&user, query, email, pass)
 	if err != nil {
 		return nil, err

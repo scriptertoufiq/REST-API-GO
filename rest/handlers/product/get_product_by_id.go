@@ -14,10 +14,10 @@ func (h *Handler) GetProductByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	product := h.productRepo.GetByID(id)
-	if product == nil {
+	res := h.service.GetByID(id)
+	if res == nil {
 		util.SendError(w, "Product not found", http.StatusNotFound)
 		return
 	}
-	util.SendData(w, product, 200)
+	util.SendData(w, res, 200)
 }
