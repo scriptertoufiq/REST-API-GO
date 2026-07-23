@@ -3,6 +3,7 @@ package db
 import (
 	"ecommerce/config"
 	"fmt"
+	"time"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -21,5 +22,13 @@ func NewDBConnection(cnf *config.Config) (*sqlx.DB, error) {
 		fmt.Println("Error connecting to the database:", err)
 		return nil, err
 	}
+
+	// Bound the pool so bursts of concurrent requests queue instead of
+	// opening more connections than Postgres allows (max_connections).
+	db.SetMaxOpenConns(25)
+	db.SetMaxIdleConns(25)
+	db.SetConnMaxLifetime(5 * time.Minute)
+	db.SetConnMaxIdleTime(5 * time.Minute)
+
 	return db, nil
 }

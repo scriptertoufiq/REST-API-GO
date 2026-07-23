@@ -22,9 +22,9 @@ func NewProductRepo(dbCon *sqlx.DB) *productRepo {
 	}
 }
 
-func (r *productRepo) List() ([]*domain.Product, error) {
+func (r *productRepo) List(page, limit int) ([]*domain.Product, error) {
 	var products []*domain.Product
-	err := r.dbCon.Select(&products, "SELECT id, title, description, price, img_url FROM products")
+	err := r.dbCon.Select(&products, "SELECT id, title, description, price, img_url FROM products LIMIT $1 OFFSET $2", limit, (page-1)*limit)
 	if err != nil {
 		return nil, err
 	}
@@ -48,13 +48,16 @@ func (r *productRepo) Create(p domain.Product) (*domain.Product, error) {
 		RETURNING id;
 	`
 	var productID int
-	row, err := r.dbCon.NamedQuery(query, p)
+	rows, err := r.dbCon.NamedQuery(query, p)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	if row.Next() {
-		err = row.Scan(&productID)
+	if rows.Next() {
+		if err = rows.Scan(&productID); err != nil {
+			return nil, err
+		}
 	}
 	p.ID = productID
 
@@ -111,4 +114,13 @@ func (r *productRepo) Delete(productID int) error {
 		return err
 	}
 	return nil
+}
+
+func (r *productRepo) Count() (int64, error) {
+	var count int64
+	err := r.dbCon.Get(&count, "SELECT COUNT(*) FROM products")
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
