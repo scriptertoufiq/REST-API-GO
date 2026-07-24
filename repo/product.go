@@ -118,7 +118,8 @@ func (r *productRepo) Delete(productID int) error {
 
 func (r *productRepo) Count() (int64, error) {
 	var count int64
-	err := r.dbCon.Get(&count, "SELECT COUNT(*) FROM products")
+	// err := r.dbCon.Get(&count, "SELECT COUNT(*) FROM products")
+	err := r.dbCon.Get(&count, "SELECT COUNT(md5(title||description||price||img_url)) FROM products")
 	if err != nil {
 		return 0, err
 	}
